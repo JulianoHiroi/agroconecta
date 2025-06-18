@@ -1,4 +1,5 @@
 import 'package:agroconecta/pages.dart';
+import 'package:agroconecta/pages/PageItens.dart';
 import 'package:agroconecta/router/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -32,6 +33,15 @@ class AppRouteInformationParser extends RouteInformationParser<AppRoute> {
       if (uri.pathSegments.first == PageName.services.name) {
         return AppRoute.services();
       }
+      if (uri.pathSegments.first == PageName.itens.name) {
+        return AppRoute.itens();
+      }
+    }
+    // rota dinâmica: /itens/:id
+    if (uri.pathSegments.length == 2 &&
+        uri.pathSegments.first == PageName.itens.name) {
+      final id = uri.pathSegments[1];
+      return AppRoute.itemDetails(id);
     }
 
     _unknownPath = uri;
@@ -40,20 +50,21 @@ class AppRouteInformationParser extends RouteInformationParser<AppRoute> {
 
   @override
   RouteInformation? restoreRouteInformation(AppRoute configuration) {
-    if (configuration.isAbout) {
-      return _getRouteInformation(configuration.pageName!.name);
+    if (configuration.isItemDetails && configuration.itemId != null) {
+      return RouteInformation(location: '/itens/${configuration.itemId}');
     }
 
+    if (configuration.isItens) {
+      return _getRouteInformation(PageName.itens.name);
+    }
+
+    if (configuration.isAbout) return _getRouteInformation(PageName.about.name);
+    if (configuration.isContact)
+      return _getRouteInformation(PageName.contact.name);
+    if (configuration.isServices)
+      return _getRouteInformation(PageName.services.name);
     if (configuration.isUnknown) {
       return RouteInformation(location: _unknownPath?.toString() ?? "/404");
-    }
-
-    if (configuration.isContact) {
-      return _getRouteInformation(configuration.pageName!.name);
-    }
-
-    if (configuration.isServices) {
-      return _getRouteInformation(configuration.pageName!.name);
     }
 
     return RouteInformation(location: "/");
@@ -94,6 +105,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
           const MaterialPage(child: ContactPage()),
         if (notifier.pageName == PageName.services)
           const MaterialPage(child: ServicesPage()),
+        if (notifier.pageName == PageName.itens)
+          MaterialPage(child: PageItens(pageNotifier: notifier)),
+        if (notifier.pageName == PageName.itens && notifier.itemId != null)
+          MaterialPage(child: PageItensDetail(id: notifier.itemId!)),
       ],
       onDidRemovePage: (onPage) {
         if (onPage.name == PageName.home.name) {
@@ -125,51 +140,50 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       return AppRoute.services();
     }
 
+    if (notifier.pageName == PageName.itens) {
+      return AppRoute.itens();
+    }
+    if (notifier.pageName == PageName.itens && notifier.itemId != null) {
+      return AppRoute.itemDetails(notifier.itemId!);
+    }
+
     return AppRoute.unknown();
   }
 
   @override
   Future<void> setNewRoutePath(AppRoute configuration) async {
     if (configuration.isUnknown) {
-      _updateRoute(page: null, isUnknown: true);
-    }
-
-    if (configuration.isAbout) {
-      _updateRoute(page: PageName.about);
-    }
-
-    if (configuration.isContact) {
-      _updateRoute(page: PageName.contact);
-    }
-
-    if (configuration.isServices) {
-      _updateRoute(page: PageName.services);
-    }
-
-    if (configuration.isHome) {
-      _updateRoute(page: PageName.home);
+      _updateRoute(isUnknown: true);
+    } else if (configuration.isItemDetails) {
+      _updateRoute(page: PageName.itens, itemId: configuration.itemId);
+    } else {
+      _updateRoute(page: configuration.pageName);
     }
   }
 
-  void _updateRoute({PageName? page, bool isUnknown = false}) {
-    notifier.changePage(page: page, unknown: isUnknown);
+  void _updateRoute({PageName? page, bool isUnknown = false, String? itemId}) {
+    notifier.changePage(page: page, unknown: isUnknown, itemId: itemId);
   }
 }
 
 class PageNotifier extends ChangeNotifier {
   PageName _pageName = PageName.home;
   bool _isUnknown = false;
+  String? _itemId;
 
   PageName get pageName => _pageName;
   bool get isUnknown => _isUnknown;
+  String? get itemId => _itemId;
 
-  void changePage({PageName? page, bool unknown = false}) {
+  void changePage({PageName? page, bool unknown = false, String? itemId}) {
     if (unknown) {
       _isUnknown = true;
-      _pageName = PageName.home; // Default to home when unknown
+      _pageName = PageName.home;
+      _itemId = null;
     } else {
       _isUnknown = false;
       _pageName = page ?? PageName.home;
+      _itemId = itemId;
     }
     notifyListeners();
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 class Item {
   final String id;
   final String name;
@@ -33,4 +35,18 @@ class Item {
       ),
     );
   }
+
+  static const SQLITE_TABLE_NAME = 'items';
+  static const SQLITE_COLUMN_ID = 'id';
+  static const SQLITE_COLUMN_NAME = 'name';
+  static const SQLITE_COLUMN_DESCRIPTION = 'description';
+  static const SQLITE_CREATE_TABLE =
+      '''
+    CREATE TABLE $SQLITE_TABLE_NAME (
+      $SQLITE_COLUMN_ID TEXT PRIMARY KEY,
+      $SQLITE_COLUMN_NAME TEXT NOT NULL,
+      $SQLITE_COLUMN_DESCRIPTION TEXT NOT NULL
+    )
+  ''';
+  static const SQLITE_DROP_TABLE = 'DROP TABLE IF EXISTS $SQLITE_TABLE_NAME';
 }

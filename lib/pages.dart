@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class HomePage extends StatefulWidget {
   final PageNotifier pageNotifier;
 
-  const HomePage({required this.pageNotifier, Key? key}) : super(key: key);
+  const HomePage({required this.pageNotifier, super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -39,6 +39,12 @@ class _HomePageState extends State<HomePage> {
                 widget.pageNotifier.changePage(page: PageName.services);
               },
               child: Text('Services'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                widget.pageNotifier.changePage(page: PageName.itens);
+              },
+              child: Text('Items'),
             ),
           ],
         ),
