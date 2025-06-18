@@ -1,8 +1,8 @@
-import 'package:agroconecta/database/repositories/item/item.repository.dart';
-import 'package:agroconecta/router/router.dart';
-import 'package:agroconecta/router/routes.dart';
+import 'package:agroconecta/providers/repositories/item/item.repository.dart';
+import 'package:agroconecta/view/router/router.dart';
+import 'package:agroconecta/view/router/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:agroconecta/models/item.dart';
+import 'package:agroconecta/domain/models/item.dart';
 
 class PageItens extends StatefulWidget {
   final PageNotifier pageNotifier;

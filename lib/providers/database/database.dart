@@ -1,4 +1,4 @@
-import 'package:agroconecta/models/item.dart';
+import 'package:agroconecta/domain/models/item.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 

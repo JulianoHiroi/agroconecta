@@ -1,6 +1,6 @@
-import 'package:agroconecta/pages.dart';
-import 'package:agroconecta/pages/PageItens.dart';
-import 'package:agroconecta/router/routes.dart';
+import 'package:agroconecta/view/pages/pages.dart';
+import 'package:agroconecta/view/pages/PageItens.dart';
+import 'package:agroconecta/view/router/routes.dart';
 import 'package:flutter/material.dart';
 
 class AppRouteInformationParser extends RouteInformationParser<AppRoute> {

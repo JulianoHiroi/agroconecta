@@ -1,8 +1,8 @@
-import 'package:agroconecta/database/database.dart';
-import 'package:agroconecta/database/repositories/item/repository.dart';
+import 'package:agroconecta/providers/database/database.dart';
+import 'package:agroconecta/providers/repositories/item/repository.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:agroconecta/models/item.dart';
+import 'package:agroconecta/domain/models/item.dart';
 
 class ItemRepository extends ChangeNotifier implements ItemRepositoryBase {
   @override

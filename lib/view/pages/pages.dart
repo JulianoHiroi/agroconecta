@@ -1,5 +1,5 @@
-import 'package:agroconecta/router/router.dart';
-import 'package:agroconecta/router/routes.dart';
+import 'package:agroconecta/view/router/router.dart';
+import 'package:agroconecta/view/router/routes.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
