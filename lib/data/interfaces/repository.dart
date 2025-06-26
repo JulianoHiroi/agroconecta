@@ -1,4 +1,4 @@
-import 'package:agroconecta/domain/models/item.dart';
+import 'package:agroconecta/data/models/item.dart';
 
 abstract class ItemRepositoryBase {
   Future<void> insertItem(Item item);

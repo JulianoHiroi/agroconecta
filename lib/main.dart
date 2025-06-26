@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'app/app_widget.dart';
 
-import 'view/router/router.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(create: (_) => PageNotifier(), child: const MyApp()),
-  );
-}
+  // await dotenv.load(
+  //   fileName:
+  //       "C:\\Users\\Juliano Hiroi\\Matérias\\Projetos\\agroconecta-server\\.env",
+  // );
+  // Inicialização de serviços antes do app começar (ex: SQLite, SharedPreferences, Firebase, etc).
+  // await DatabaseService().init();
+  // await PermissionService().checkPermissions();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routeInformationParser: AppRouteInformationParser(),
-      routerDelegate: AppRouterDelegate(
-        notifier: Provider.of<PageNotifier>(context),
-      ),
-      title: 'Navigator 2.0',
-      theme: ThemeData(primarySwatch: Colors.blue),
-    );
-  }
+  runApp(const AppWidget());
 }
