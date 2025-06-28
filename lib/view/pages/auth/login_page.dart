@@ -5,6 +5,8 @@
 
 import 'package:agroconecta/data/datasource/local/local_storage_services.dart';
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/auth_services.dart';
+import 'package:agroconecta/data/datasource/local/repositories/user.reposiroty.dart';
+import 'package:agroconecta/view/utils/exception-utils.dart';
 import 'package:agroconecta/view/widgets/logo/logo.widget.dart';
 import 'package:flutter/material.dart';
 
@@ -21,30 +23,31 @@ class _LoginPageState extends State<LoginPage> {
 
   final authApi = AuthServices();
   final localStorageService = LocalStorageService();
+  final UserRepository userRepository = UserRepository();
 
   void fazerLogin(String email, String password) async {
-    try {
-      // final response = await authApi.login(email, password);
-      final response = await authApi.login("teste@teste.com", "SenhaForte123!");
-      if (response.statusCode != 200) {
-        throw Exception('Erro ao fazer login: ${response.data}');
-      }
-
-      print(response);
-      final data = response.data as Map<String, dynamic>;
-      final user = data['user'] as Map<String, dynamic>;
-      print(user);
-      print(user['id']);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login realizado com sucesso!')),
-      );
-
-      Navigator.pushNamed(context, '/home');
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao fazer login: $e')));
-    }
+    handleAsync(
+      context: context,
+      operation: () async {
+        //final response = await authApi.login(email, password);
+        final response = await authApi.login(
+          "teste@teste.com",
+          "SenhaForte123!",
+        );
+        if (response.token.isNotEmpty) {
+          // Armazenar o token no armazenamento local
+          await localStorageService.setValue('token', response.token);
+          // Armazenar o usuário no armazenamento local
+          await userRepository.insertUser(response.user);
+          // Navegar para a página inicial
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Login falhou.')));
+        }
+      },
+    );
   }
 
   @override
