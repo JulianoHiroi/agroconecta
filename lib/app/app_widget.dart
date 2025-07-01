@@ -1,5 +1,5 @@
+import 'package:agroconecta/app/routes.dart';
 import 'package:flutter/material.dart';
-import 'routes.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({super.key});
@@ -10,10 +10,10 @@ class AppWidget extends StatelessWidget {
       title: 'AgroConecta',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: Routes.main,
+      initialRoute: '/',
       onGenerateRoute: AppRouter.generateRoute,
     );
   }

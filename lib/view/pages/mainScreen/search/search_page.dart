@@ -1,7 +1,10 @@
+import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/estabelecimentos_services.dart';
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/produtos_services.dart';
 import 'package:agroconecta/data/models/tipo_produto.dart';
 import 'package:agroconecta/external/services/geolocator_service.dart';
+import 'package:agroconecta/view/pages/mainScreen/settings/estabelecimentos/estabecimentos_page.dart';
 import 'package:agroconecta/view/widgets/components/custom_droptdown_search.dart';
+import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,12 +21,16 @@ class _SearchMapPageState extends State<SearchMapPage> {
   final mapController = MapController();
 
   final ProdutosServices produtosApi = ProdutosServices();
+  final EstabelecimentosServices estabelecimentosApi =
+      EstabelecimentosServices();
 
   List<Marker> _markers = [];
 
   String? _selectedTipoProduto;
   double _selectedRadius = 5;
   LatLng? _userLocation;
+
+  bool _isLoading = false;
 
   List<TipoProduto> _tiposProdutos = [];
 
@@ -32,7 +39,6 @@ class _SearchMapPageState extends State<SearchMapPage> {
       final response = await produtosApi.getAllTiposProdutos();
       setState(() {
         _tiposProdutos = response;
-        print('Tipos de produto carregados: ${_tiposProdutos.length}');
       });
     } catch (e) {
       print('Erro ao carregar tipos de produto: $e');
@@ -54,7 +60,25 @@ class _SearchMapPageState extends State<SearchMapPage> {
     _getLocation(); // Obtém a localização do usuário ao iniciar
   }
 
-  void _getLocation() async {
+  void _fitMarkersToView(List<LatLng> points) {
+    if (points.isEmpty) return;
+
+    var bounds = LatLngBounds.fromPoints(points);
+
+    mapController.fitBounds(
+      bounds,
+      options: FitBoundsOptions(
+        padding: const EdgeInsets.only(
+          top: 120, // padding maior no topo para acomodar a barra de busca
+          left: 60,
+          right: 60,
+          bottom: 60,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _getLocation() async {
     try {
       final position = await LocationService.getCurrentLocation();
       print('Localização do usuário: $position');
@@ -63,20 +87,23 @@ class _SearchMapPageState extends State<SearchMapPage> {
 
       setState(() {
         _userLocation = userLatLng;
-
-        // Adiciona ou atualiza marcador do usuário (como uma bolinha verde)
-        _markers.removeWhere((m) => m.key == const ValueKey('user_location'));
-
+        print("Removendo marcadores antigos do usuário");
+        _markers.removeWhere(
+          (m) => m.key != null && m.key.toString().contains('user_location'),
+        );
+        print("Adicionando novo marcador do usuário");
+        // E no marcador do usuário, adicione um identificador único:
         _markers.add(
           Marker(
-            key: const ValueKey('user_location'),
+            key: ValueKey('user_location'),
             point: userLatLng,
-            width: 20,
-            height: 20,
+            width: 24,
+            height: 24,
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.green,
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+                color: Colors.green,
               ),
             ),
           ),
@@ -91,46 +118,87 @@ class _SearchMapPageState extends State<SearchMapPage> {
   }
 
   Future<void> _onSearch(String value) async {
-    print('Buscando por: $value');
-    print('Tipo de Produto: $_selectedTipoProduto');
-    print('Raio: ${_selectedRadius.toStringAsFixed(0)} km');
-    print('Localização do usuário: $_userLocation');
+    setState(() => _isLoading = true);
 
-    // Mock com localização de Pinhas-PR e arredores
-    final mockResults = [
-      {'name': 'Feira Pinhas', 'lat': -25.4442, 'lng': -49.2104},
-      {'name': 'Mercado Central', 'lat': -25.4430, 'lng': -49.2180},
-      {'name': 'Empório Rural', 'lat': -25.4487, 'lng': -49.2022},
-    ];
+    await _getLocation();
 
-    setState(() {
-      // Remove todos os marcadores que não são do usuário
-      _markers.removeWhere((m) => m.key != const ValueKey('user_location'));
-
-      _markers.addAll(
-        mockResults.map((local) {
-          return Marker(
-            width: 40,
-            height: 40,
-            point: LatLng(local['lat'] as double, local['lng'] as double),
-            child: Tooltip(
-              message: local['name'] as String,
-              child: const Icon(Icons.location_on, color: Colors.red, size: 36),
-            ),
+    try {
+      final estabelecimentosSelecionados = await estabelecimentosApi
+          .searchEstabelecimento(
+            lat: _userLocation?.latitude ?? -25.4442,
+            lng: _userLocation?.longitude ?? -49.2104,
+            name: value,
+            idTypeProduct: _selectedTipoProduto ?? '',
+            searchRadius: (_selectedRadius * 1000).toInt(),
           );
-        }).toList(),
-      );
 
-      if (mockResults.isNotEmpty) {
-        mapController.move(
-          LatLng(
-            mockResults[0]['lat'] as double,
-            mockResults[0]['lng'] as double,
-          ),
-          14.0,
+      setState(() {
+        _markers.removeWhere((m) => m.key != const ValueKey('user_location'));
+
+        _markers.addAll(
+          estabelecimentosSelecionados.estabelecimentos.map((local) {
+            return Marker(
+              width: 100,
+              height: 60,
+              point: LatLng(local.latitude, local.longitude),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/select-establishment/${local.id}',
+                  );
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.red, size: 36),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        local.name,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         );
-      }
-    });
+
+        final allLatLngs = estabelecimentosSelecionados.estabelecimentos
+            .map((local) => LatLng(local.latitude, local.longitude))
+            .toList();
+
+        if (_userLocation != null) {
+          allLatLngs.add(_userLocation!);
+        }
+        print('Marcadores atualizados: ${_markers.length}');
+        _fitMarkersToView(allLatLngs);
+      });
+    } catch (e) {
+      print('Erro ao buscar estabelecimentos: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   void _openFilter() {
@@ -139,59 +207,82 @@ class _SearchMapPageState extends State<SearchMapPage> {
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Padding(
-              //FAça a cor da modal ser branca
-              padding: const EdgeInsets.all(16.0),
+            return SafeArea(
+              child: Padding(
+                //FAça a cor da modal ser branca
+                padding: const EdgeInsets.all(16.0),
 
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Filtros',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Filtros',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
 
-                  const SizedBox(height: 16),
-                  CustomDropdownSearch(
-                    value: _selectedTipoProduto,
-                    label: 'Tipo do Produto',
-                    items: _tiposProdutos.map((tipo) {
-                      return DropdownMenuItem<String>(
-                        value: tipo.id,
-                        child: Text(tipo.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedTipoProduto = value;
-                      });
-                    },
-                  ),
+                    const SizedBox(height: 16),
+                    CustomDropdownSearch(
+                      value: _selectedTipoProduto,
+                      label: 'Tipo do Produto',
+                      items: _tiposProdutos.map((tipo) {
+                        return DropdownMenuItem<String>(
+                          value: tipo.id,
+                          child: Text(tipo.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setModalState(() {
+                          _selectedTipoProduto = value;
+                        });
+                      },
+                    ),
 
-                  const SizedBox(height: 16),
-                  Text('Raio: ${_selectedRadius.toStringAsFixed(0)} km'),
-                  Slider(
-                    value: _selectedRadius,
-                    min: 1,
-                    max: 200,
-                    divisions: 49,
-                    label: '${_selectedRadius.toStringAsFixed(0)} km',
-                    onChanged: (value) {
-                      setModalState(() => _selectedRadius = value);
-                    },
-                  ),
+                    const SizedBox(height: 16),
+                    Text('Raio: ${_selectedRadius.toStringAsFixed(0)} km'),
+                    Slider(
+                      value: _selectedRadius,
+                      min: 1,
+                      max: 200,
+                      divisions: 49,
+                      label: '${_selectedRadius.toStringAsFixed(0)} km',
+                      onChanged: (value) {
+                        setModalState(() => _selectedRadius = value);
+                      },
+                    ),
 
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _onSearch(
-                        _searchController.text,
-                      ); // Refaz a busca com filtros aplicados
-                    },
-                    child: const Text('Aplicar Filtros'),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomElevatedButton(
+                            label: 'Limpar',
+                            onPressed: () {
+                              setModalState(() {
+                                _selectedTipoProduto = null;
+                                _selectedRadius = 5;
+                                _searchController
+                                    .clear(); // se quiser limpar também o texto
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomElevatedButton(
+                            label: 'Aplicar',
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _onSearch(_searchController.text);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -209,10 +300,7 @@ class _SearchMapPageState extends State<SearchMapPage> {
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
-              center: LatLng(-23.5505, -46.6333),
-              zoom: 13.0,
-              maxZoom: 18.0,
-              minZoom: 2.0,
+              center: _userLocation ?? LatLng(-25.4442, -49.2104), // Pinhais-PR
               onTap: (_, __) => FocusScope.of(context).unfocus(),
             ),
             children: [
@@ -281,6 +369,13 @@ class _SearchMapPageState extends State<SearchMapPage> {
               ],
             ),
           ),
+          if (_isLoading)
+            const Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black26,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
         ],
       ),
     );

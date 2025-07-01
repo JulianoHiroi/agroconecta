@@ -60,7 +60,7 @@ class _AlteraSenhaPageState extends State<AlteraSenhaPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Senha alterada com sucesso!')),
             );
-            Navigator.pushReplacementNamed(context, '/');
+            Navigator.pushReplacementNamed(context, '/login');
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Erro ao alterar senha')),

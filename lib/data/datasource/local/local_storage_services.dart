@@ -16,4 +16,9 @@ class LocalStorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
+
+  Future<void> removeValue(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
+  }
 }

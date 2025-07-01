@@ -145,6 +145,24 @@ class AuthServices extends AgroConectaApiService {
     }
     return AlterarSenhaResponse(success: false);
   }
+
+  Future<void> logout() async {
+    try {
+      dio.options.headers.remove('Authorization');
+      dio.options.headers.remove('Content-Type');
+      dio.options.headers.remove('Accept');
+      dio.options.headers.remove('Access-Control-Allow-Origin');
+    } catch (e) {
+      throw UnexpectedException('Erro ao fazer logout: $e');
+    }
+  }
+
+  void CarregarToken(String token) {
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    dio.options.headers['Content-Type'] = 'application/json';
+    dio.options.headers['Accept'] = 'application/json';
+    dio.options.headers['Access-Control-Allow-Origin'] = '*';
+  }
 }
 
 class LoginResponse {

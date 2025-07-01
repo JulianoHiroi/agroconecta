@@ -1,10 +1,13 @@
+import 'package:agroconecta/app/splash_page.dart';
 import 'package:agroconecta/view/pages/auth/altera_senha_page.dart';
 import 'package:agroconecta/view/pages/auth/cadastro_page.dart';
 import 'package:agroconecta/view/pages/auth/codigo_recuperacao_page.dart';
 import 'package:agroconecta/view/pages/auth/recuperar_senha_page.dart';
 import 'package:agroconecta/view/pages/auth/login_page.dart';
+import 'package:agroconecta/view/pages/mainScreen/establishment_page.dart';
 import 'package:agroconecta/view/pages/mainScreen/main_page.dart';
 import 'package:agroconecta/view/pages/mainScreen/search/search_page.dart';
+import 'package:agroconecta/view/pages/mainScreen/settings/configUsuario/config_user_page.dart';
 import 'package:agroconecta/view/pages/mainScreen/settings/estabelecimentos/create_estabelecimentos_page.dart';
 import 'package:agroconecta/view/pages/mainScreen/settings/estabelecimentos/estabecimentos_page.dart';
 import 'package:agroconecta/view/pages/mainScreen/settings/estabelecimentos/select_estabelecimento_page.dart';
@@ -13,7 +16,8 @@ import 'package:agroconecta/view/pages/mainScreen/settings/produtos/products_pag
 import 'package:flutter/material.dart';
 
 class Routes {
-  static const String login = '/';
+  static const String initial = '/';
+  static const String login = '/login';
   static const String main = '/main';
   static const String cadastro = '/register';
   static const String recuperarSenha = '/recover-password';
@@ -23,9 +27,13 @@ class Routes {
   static const String createEstabelecimento = '/create-establishment';
   static const String editEstabelecimentoPrefix =
       '/edit-establishment'; // sem :id aqui
+
+  static const String selectEstabelecimentoPrefix =
+      '/select-establishment'; // sem :id aqui
   static const String produtos = '/products';
   static const String createProduto = '/create-product';
-
+  static const String configuracaoUsuario =
+      '/user-settings'; // Rota para selecionar estabelecimento
   static const String teste = '/teste';
 }
 
@@ -42,7 +50,18 @@ class AppRouter {
       );
     }
 
+    // Rota para selecionar estabelecimento
+    if (settings.name!.startsWith(Routes.selectEstabelecimentoPrefix)) {
+      final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+      return MaterialPageRoute(
+        builder: (_) =>
+            ViewEstabelecimentoPage(idEstabelecimento: id ?? 'erro'),
+      );
+    }
+
     switch (settings.name) {
+      case '/':
+        return MaterialPageRoute(builder: (_) => const SplashRedirectPage());
       case Routes.login:
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case Routes.main:
@@ -67,6 +86,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const SearchMapPage());
       case Routes.createProduto:
         return MaterialPageRoute(builder: (_) => const CreateProductPage());
+      case Routes.configuracaoUsuario:
+        return MaterialPageRoute(builder: (_) => const UserSettingsPage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

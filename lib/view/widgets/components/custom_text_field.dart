@@ -6,6 +6,8 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final String hintText;
   final TextInputType keyboardType;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
 
   const CustomTextField({
     Key? key,
@@ -14,6 +16,8 @@ class CustomTextField extends StatelessWidget {
     this.hintText = 'Value',
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.validator,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -21,17 +25,19 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label ?? '',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
+        if (label != null)
+          Text(
+            label!,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
+        if (label != null) const SizedBox(height: 8),
+        TextFormField(
           controller: controller,
+          onChanged: onChanged,
           obscureText: obscureText,
           keyboardType: keyboardType,
           decoration: InputDecoration(
@@ -51,7 +57,23 @@ class CustomTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(8.0),
               borderSide: const BorderSide(color: Colors.black, width: 1.5),
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
           ),
+          validator:
+              validator ??
+              (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, preencha este campo';
+                }
+                return null;
+              },
         ),
       ],
     );

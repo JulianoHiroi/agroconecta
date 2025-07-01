@@ -52,4 +52,9 @@ class Produto {
       if (quantity != null) 'quantity': quantity,
     };
   }
+
+  @override
+  String toString() {
+    return 'Produto{id: $id, price: $price, description: $description, idTypeProduct: $idTypeProduct, name: $name, quantity: $quantity}';
+  }
 }

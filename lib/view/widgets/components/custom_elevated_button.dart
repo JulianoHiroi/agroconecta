@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class CustomElevatedButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
+  final Color? color; // cor opcional
   final double? width;
 
   const CustomElevatedButton({
     super.key,
     required this.label,
     required this.onPressed,
+    this.color,
     this.width,
   });
 
@@ -21,7 +23,7 @@ class CustomElevatedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black87,
+          backgroundColor: color ?? Colors.black,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),

@@ -8,6 +8,7 @@ class EstabelecimentosServices extends AgroConectaApiService {
   // Método corrigido
   Future<List<Estabelecimento>> getAllEstabelecimentos() async {
     try {
+      print('Obtendo todos os estabelecimentos...');
       final response = await dio.get('/api/establishments/');
       if (response.statusCode == 200) {
         var data = response.data;
@@ -22,7 +23,6 @@ class EstabelecimentosServices extends AgroConectaApiService {
         );
       }
     } catch (e) {
-      print('Erro ao obter estabelecimentos: $e');
       throw Exception('Erro ao obter estabelecimentos: $e');
     }
   }
@@ -146,6 +146,49 @@ class EstabelecimentosServices extends AgroConectaApiService {
       throw Exception('Erro ao excluir estabelecimento: $e');
     }
   }
+
+  /**
+   * 
+{
+"lat": -25.4442,
+"lng": -49.2104,
+"idTypeProduct": "5a1eb127-0ed4-4a35-ba37-6800d6339355" ,
+"searchRadius": 6,
+"name": "Mercado"
+}
+   */
+
+  Future<SearchEstabelecimentoResponse> searchEstabelecimento({
+    required double lat,
+    required double lng,
+    String name = '',
+    String idTypeProduct = '',
+    int searchRadius = 6,
+  }) async {
+    try {
+      final response = await dio.post(
+        '/api/establishments/search',
+        data: {
+          'lat': lat,
+          'lng': lng,
+          'name': name,
+          'idTypeProduct': idTypeProduct,
+          'searchRadius': searchRadius,
+        },
+      );
+      if (response.statusCode == 200) {
+        return SearchEstabelecimentoResponse.fromList(response.data);
+        ;
+      } else {
+        throw Exception(
+          'Erro ao buscar estabelecimento: ${response.statusMessage}',
+        );
+      }
+    } catch (e) {
+      print('Erro ao buscar estabelecimento: $e');
+      throw Exception('Erro ao buscar estabelecimento: $e');
+    }
+  }
 }
 
 class GetAllEstabelecimentosResponse {
@@ -169,4 +212,45 @@ class CreateEstabelecimentoResponse {
     required this.sucesso,
     required this.estabelecimento,
   });
+}
+
+class SearchEstabelecimentoResponse {
+  final List<ObjetoSearchResponseEstabelecimento> estabelecimentos;
+
+  SearchEstabelecimentoResponse({required this.estabelecimentos});
+
+  factory SearchEstabelecimentoResponse.fromList(List<dynamic> list) {
+    return SearchEstabelecimentoResponse(
+      estabelecimentos: list.map((item) {
+        return ObjetoSearchResponseEstabelecimento.fromJson(
+          item as Map<String, dynamic>,
+        );
+      }).toList(),
+    );
+  }
+}
+
+class ObjetoSearchResponseEstabelecimento {
+  final String id;
+  final String name;
+  final double latitude;
+  final double longitude;
+
+  ObjetoSearchResponseEstabelecimento({
+    required this.id,
+    required this.name,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory ObjetoSearchResponseEstabelecimento.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return ObjetoSearchResponseEstabelecimento(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      latitude: (json['latitue'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+    );
+  }
 }

@@ -39,6 +39,7 @@ class _LoginPageState extends State<LoginPage> {
         if (response.token.isNotEmpty) {
           // Armazenar o token no armazenamento local
           await localStorageService.setValue('token', response.token);
+          await localStorageService.setValue('userId', response.user.id);
           // Armazenar o usuário no armazenamento local
           await userRepository.insertUser(response.user);
           // Navegar para a página inicial
