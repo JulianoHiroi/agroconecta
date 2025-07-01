@@ -13,7 +13,7 @@ class AppWidget extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: Routes.login,
+      initialRoute: Routes.main,
       onGenerateRoute: AppRouter.generateRoute,
     );
   }

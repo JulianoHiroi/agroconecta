@@ -7,11 +7,7 @@ class LogoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SvgPicture.asset(
-        'assets/images/AgroConecta.svg',
-        width: 150,
-        height: 150,
-      ),
+      child: SvgPicture.asset('assets/images/AgroConecta.svg', height: 32),
     );
   }
 }

@@ -7,6 +7,8 @@ import 'package:agroconecta/data/datasource/local/local_storage_services.dart';
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/auth_services.dart';
 import 'package:agroconecta/data/datasource/local/repositories/user.reposiroty.dart';
 import 'package:agroconecta/view/utils/exception-utils.dart';
+import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
+import 'package:agroconecta/view/widgets/components/custom_text_field.dart';
 import 'package:agroconecta/view/widgets/logo/logo.widget.dart';
 import 'package:flutter/material.dart';
 
@@ -31,8 +33,8 @@ class _LoginPageState extends State<LoginPage> {
       operation: () async {
         //final response = await authApi.login(email, password);
         final response = await authApi.login(
-          "teste@teste.com",
-          "SenhaForte123!",
+          "juca.sup2@gmail.com",
+          "Ndacps16#",
         );
         if (response.token.isNotEmpty) {
           // Armazenar o token no armazenamento local
@@ -40,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           // Armazenar o usuário no armazenamento local
           await userRepository.insertUser(response.user);
           // Navegar para a página inicial
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/main');
         } else {
           ScaffoldMessenger.of(
             context,
@@ -61,28 +63,40 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const LogoWidget(),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+            Container(
+              margin: const EdgeInsets.only(top: 30, bottom: 10),
+              child: CustomTextField(
+                controller: emailController,
+                label: 'Email',
+                hintText: 'Digite seu email',
+                keyboardType: TextInputType.emailAddress,
+              ),
             ),
-            TextField(
+
+            CustomTextField(
               controller: passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Senha'),
+              label: 'Senha',
+              hintText: 'Digite seu senha',
+              keyboardType: TextInputType.visiblePassword,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+
+            CustomElevatedButton(
+              label: 'Enviar',
               onPressed: () {
                 fazerLogin(emailController.text, passwordController.text);
               },
-              child: const Text('Login'),
             ),
+
             TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.black87),
               onPressed: () {
                 // Navegar para a página de recuperação de senha
                 Navigator.pushNamed(context, '/recover-password');
@@ -90,6 +104,7 @@ class _LoginPageState extends State<LoginPage> {
               child: const Text('Esqueci minha senha'),
             ),
             TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.black87),
               onPressed: () {
                 // Navegar para a página de cadastro
                 Navigator.pushNamed(context, '/register');

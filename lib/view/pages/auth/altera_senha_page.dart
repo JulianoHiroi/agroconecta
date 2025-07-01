@@ -1,5 +1,7 @@
 import 'package:agroconecta/data/datasource/local/local_storage_services.dart';
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/auth_services.dart';
+import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
+import 'package:agroconecta/view/widgets/components/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
 class AlteraSenhaPage extends StatefulWidget {
@@ -75,28 +77,39 @@ class _AlteraSenhaPageState extends State<AlteraSenhaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Alterar Senha')),
+      appBar: AppBar(
+        title: const Text('Alterar Senha'),
+        backgroundColor: Colors.grey,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
+            CustomTextField(
               controller: senhaController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Nova Senha'),
+              label: 'Nova Senha',
+              hintText: 'Digite sua nova senha',
+              keyboardType: TextInputType.visiblePassword,
             ),
-            TextField(
+            const SizedBox(height: 16),
+            CustomTextField(
               controller: confirmarSenhaController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Confirmar Senha'),
+              label: 'Confirmar Senha',
+              hintText: 'Confirme sua nova senha',
+              keyboardType: TextInputType.visiblePassword,
             ),
-            ElevatedButton(
-              onPressed: () => alterarSenha(
-                senhaController.text,
-                confirmarSenhaController.text,
-              ),
-              child: const Text('Alterar Senha'),
+            const SizedBox(height: 20),
+            CustomElevatedButton(
+              label: 'Alterar Senha',
+              onPressed: () {
+                alterarSenha(
+                  senhaController.text,
+                  confirmarSenhaController.text,
+                );
+              },
             ),
           ],
         ),

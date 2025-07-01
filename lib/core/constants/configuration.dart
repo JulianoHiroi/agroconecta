@@ -8,6 +8,10 @@ class Configuration {
 
   static int get timeout {
     // Obtém o tempo limite de conexão do arquivo .env, com valor padrão de 5000 ms
-    return 100;
+    return 5000;
+  }
+
+  static String get routeImages {
+    return "$agroConectaServerUrl/api/assets/";
   }
 }

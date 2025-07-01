@@ -1,5 +1,10 @@
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/auth_services.dart';
 import 'package:agroconecta/view/utils/exception-utils.dart';
+import 'package:agroconecta/view/widgets/components/custom_data_picker.dart';
+import 'package:agroconecta/view/widgets/components/custom_dropdown_button.dart';
+import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
+import 'package:agroconecta/view/widgets/components/custom_text_field.dart';
+import 'package:agroconecta/view/widgets/logo/logo.widget.dart';
 import 'package:flutter/material.dart';
 
 class CadastroPage extends StatefulWidget {
@@ -84,86 +89,93 @@ class _CadastroPageState extends State<CadastroPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nome'),
-            ),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Senha'),
-            ),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Confirmar Senha'),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedGender,
-              hint: const Text('Gênero'),
-              items: const [
-                DropdownMenuItem(value: 'male', child: Text('Masculino')),
-                DropdownMenuItem(value: 'female', child: Text('Feminino')),
-                DropdownMenuItem(value: 'other', child: Text('Outro')),
-              ],
-              onChanged: (value) => setState(() {
-                selectedGender = value;
-              }),
-              decoration: const InputDecoration(border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    selectedDate != null
-                        ? 'Data de nascimento: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                        : 'Nenhuma data selecionada',
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _selectDate,
-                  child: const Text('Selecionar Data'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                if (passwordController.text != confirmPasswordController.text) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('As senhas não coincidem')),
-                  );
-                  return;
-                }
+      appBar: AppBar(
+        title: const Text('Cadastro'),
+        backgroundColor: Colors.grey,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
 
-                if (selectedGender == null || selectedDate == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Preencha todos os campos')),
-                  );
-                  return;
-                }
+          child: Column(
+            children: [
+              const LogoWidget(),
+              const SizedBox(height: 30),
+              CustomTextField(
+                controller: nameController,
+                label: 'Nome',
+                hintText: 'Digite seu nome completo',
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: emailController,
+                label: 'Email',
+                keyboardType: TextInputType.emailAddress,
+                hintText: 'Digite seu email',
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: passwordController,
+                label: 'Senha',
+                obscureText: true,
+                hintText: 'Digite sua senha',
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: confirmPasswordController,
+                label: 'Confirmar Senha',
+                obscureText: true,
+                hintText: 'Confirme sua senha',
+              ),
+              const SizedBox(height: 16),
+              CustomDropdownButton(
+                value: selectedGender,
+                label: 'Gênero',
+                items: const [
+                  DropdownMenuItem(value: 'male', child: Text('Masculino')),
+                  DropdownMenuItem(value: 'female', child: Text('Feminino')),
+                  DropdownMenuItem(value: 'other', child: Text('Outro')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedGender = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              CustomDatePicker(
+                label: 'Data de nascimento',
+                selectedDate: selectedDate,
+                onTap: _selectDate,
+              ),
+              const SizedBox(height: 24),
+              CustomElevatedButton(
+                label: 'Cadastro',
+                onPressed: () {
+                  if (passwordController.text !=
+                      confirmPasswordController.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('As senhas não coincidem')),
+                    );
+                    return;
+                  }
 
-                fazerCadastro(
-                  nameController.text,
-                  emailController.text,
-                  passwordController.text,
-                );
-              },
-              child: const Text('Cadastrar'),
-            ),
-          ],
+                  if (selectedGender == null || selectedDate == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Preencha todos os campos')),
+                    );
+                    return;
+                  }
+
+                  fazerCadastro(
+                    nameController.text,
+                    emailController.text,
+                    passwordController.text,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

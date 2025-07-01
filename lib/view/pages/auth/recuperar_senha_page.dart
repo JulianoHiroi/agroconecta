@@ -1,5 +1,8 @@
 import 'package:agroconecta/data/datasource/local/local_storage_services.dart';
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/auth_services.dart';
+import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
+import 'package:agroconecta/view/widgets/components/custom_text_field.dart';
+import 'package:agroconecta/view/widgets/logo/logo.widget.dart';
 import 'package:flutter/material.dart';
 
 class RecuperarSenhaPage extends StatefulWidget {
@@ -68,26 +71,49 @@ class _RecuperarSenhaPageState extends State<RecuperarSenhaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Recuperar Senha')),
+      appBar: AppBar(
+        title: const Text('Recuperar Senha'),
+        backgroundColor: Colors.grey,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const LogoWidget(),
+            SizedBox(height: 60),
             // Apresente um informativo sobre a recuperação de senha
             const Text(
               'Digite seu email para receber instruções de recuperação de senha.',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            TextField(
+            CustomTextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              label: 'Email',
+              hintText: 'Digite seu email',
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => recuperarSenha(emailController.text),
-              child: const Text('Enviar email de recuperação'),
+            Container(
+              width: double.infinity,
+              alignment: Alignment.bottomRight,
+              child: CustomElevatedButton(
+                label: 'Enviar',
+                width: 100,
+                onPressed: () {
+                  if (emailController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Por favor, insira seu email'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  recuperarSenha(emailController.text);
+                },
+              ),
             ),
           ],
         ),

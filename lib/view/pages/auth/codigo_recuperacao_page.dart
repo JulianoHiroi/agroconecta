@@ -1,5 +1,7 @@
 import 'package:agroconecta/data/datasource/local/local_storage_services.dart';
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/auth_services.dart';
+import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
+import 'package:agroconecta/view/widgets/components/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
 class CodigoRecuperacaoPage extends StatefulWidget {
@@ -72,19 +74,38 @@ class _CodigoRecuperacaoPageState extends State<CodigoRecuperacaoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Código de Recuperação')),
+      appBar: AppBar(
+        title: const Text('Código de Recuperação'),
+        backgroundColor: Colors.grey,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: codigoController,
-              decoration: const InputDecoration(labelText: 'Código'),
+            // Titulo da página
+            const Text(
+              'Código de Recuperação',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
-            ElevatedButton(
-              onPressed: () => verificarCodigo(codigoController.text),
-              child: const Text('Verificar Código'),
+
+            CustomTextField(
+              controller: codigoController,
+
+              hintText: 'Digite o código enviado para seu email',
+              keyboardType: TextInputType.text,
+            ),
+            SizedBox(height: 20),
+            Container(
+              alignment: Alignment.bottomRight,
+              child: CustomElevatedButton(
+                label: 'Verificar',
+                onPressed: () {
+                  verificarCodigo(codigoController.text);
+                },
+                width: 100,
+              ),
             ),
           ],
         ),
