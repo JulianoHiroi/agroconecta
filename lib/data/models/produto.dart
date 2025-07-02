@@ -19,6 +19,7 @@ class Produto {
   final String idTypeProduct;
   final String name;
   final double? quantity;
+  final double? ratingAvaliation;
 
   Produto({
     required this.id,
@@ -27,6 +28,7 @@ class Produto {
     required this.idTypeProduct,
     required this.name,
     this.quantity,
+    this.ratingAvaliation,
   });
 
   factory Produto.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,9 @@ class Produto {
       name: json['name'] as String,
       quantity: json.containsKey('quantity')
           ? (json['quantity'] as num).toDouble()
+          : null,
+      ratingAvaliation: json.containsKey('ratingAvaliation')
+          ? (json['ratingAvaliation'] as num).toDouble()
           : null,
     );
   }

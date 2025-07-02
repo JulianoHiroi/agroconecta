@@ -1,4 +1,5 @@
 import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/estabelecimentos_services.dart';
+import 'package:agroconecta/data/datasource/remote/agroConectaApi/services/order_services.dart';
 import 'package:agroconecta/data/models/estabelecimento.dart';
 import 'package:agroconecta/data/models/produto.dart';
 import 'package:agroconecta/view/widgets/components/custom_elevated_button.dart';
@@ -22,6 +23,8 @@ class _ViewEstabelecimentoPageState extends State<ViewEstabelecimentoPage> {
   final EstabelecimentosServices estabelecimentosApi =
       EstabelecimentosServices();
   String endereco = "Carregando...";
+
+  final OrderServices orderServices = OrderServices();
 
   @override
   void initState() {
@@ -162,6 +165,14 @@ class _ViewEstabelecimentoPageState extends State<ViewEstabelecimentoPage> {
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
                                   Navigator.pop(context);
+
+                                  orderServices.createOrder(
+                                    productId: produto.id,
+                                    establishmentId: estabelecimento!.id,
+                                    quantity: double.parse(
+                                      _quantidadeController.text,
+                                    ),
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -169,7 +180,6 @@ class _ViewEstabelecimentoPageState extends State<ViewEstabelecimentoPage> {
                                       ),
                                     ),
                                   );
-                                  // Aqui você poderia chamar um serviço de pedido se quiser
                                 }
                               },
                               label: 'Fazer Pedido',
@@ -318,6 +328,12 @@ class _ViewEstabelecimentoPageState extends State<ViewEstabelecimentoPage> {
                             'Quantidade disponível: ${produto.quantity} Kg',
                             style: const TextStyle(fontSize: 14),
                           ),
+                          // Faça a exibição da avaliação do produto, se existir
+                          if (produto.ratingAvaliation != null)
+                            Text(
+                              'Avaliação: ${produto.ratingAvaliation!.toStringAsFixed(1)}',
+                              style: const TextStyle(fontSize: 14),
+                            ),
                         ],
                       ),
                       trailing: CustomElevatedButton(

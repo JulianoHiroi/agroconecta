@@ -3,7 +3,7 @@
 class Configuration {
   static String get agroConectaServerUrl {
     // Obtém a URL do servidor AgroConecta do arquivo .env
-    return "http://10.0.2.2:4000";
+    return "http://192.168.100.143:4000";
   }
 
   static int get timeout {

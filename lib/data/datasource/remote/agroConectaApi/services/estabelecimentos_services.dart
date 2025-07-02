@@ -75,6 +75,7 @@ class EstabelecimentosServices extends AgroConectaApiService {
   Future<Estabelecimento> getEstabelecimentoById(String id) async {
     try {
       final response = await dio.get('/api/establishments/$id');
+      print(response.data);
       if (response.statusCode == 200) {
         return Estabelecimento.fromJson(response.data);
       } else {

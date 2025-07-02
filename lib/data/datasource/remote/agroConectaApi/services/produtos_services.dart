@@ -119,6 +119,24 @@ class ProdutosServices extends AgroConectaApiService {
       throw Exception('Erro ao desconectar produto do estabelecimento: $e');
     }
   }
+
+  Future<void> makeAvaliation({
+    required String productId,
+    required int rating,
+  }) async {
+    try {
+      final response = await dio.post(
+        '/api/products/avaliation/$productId',
+        data: {'rating': rating},
+      );
+      if (response.statusCode != 204) {
+        throw Exception('Erro ao enviar avaliação: ${response.statusMessage}');
+      }
+    } catch (e) {
+      print('Erro ao enviar avaliação: $e');
+      throw Exception('Erro ao enviar avaliação: $e');
+    }
+  }
 }
 
 class GetAllTiposProdutosResponse {
